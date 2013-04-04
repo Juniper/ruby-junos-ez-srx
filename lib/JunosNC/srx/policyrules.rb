@@ -141,15 +141,15 @@ class JunosNC::SRX::PolicyRules::Provider
   end
   
   def build_catalog
-    catalog = {}
+    @catalog = {}
     xml_got = @ndev.rpc.get_configuration( @parent.xml_at_top )
     pols = xml_got.xpath('security/policies/policy')
     pols.xpath('policy').each do |pol|
       name = pol.xpath('name').text
-      catalog[name] = {}
-      xml_read_parser( pol, catalog[name] )
+      @catalog[name] = {}
+      xml_read_parser( pol, @catalog[name] )
     end
-    return catalog
+    return @catalog
   end  
   
 end

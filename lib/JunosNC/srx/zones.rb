@@ -36,9 +36,6 @@ class JunosNC::SRX::Zones::Provider < JunosNC::Provider::Parent
     xml.send(:'host-inbound-traffic')
     xml.interfaces
     @ndev.rpc.get_configuration( xml )      
-  end
-  
-  def xml_try_rename( par_xml, new_name )
   end  
   
   ### ---------------------------------------------------------------
@@ -128,14 +125,14 @@ class JunosNC::SRX::Zones::Provider
       }}
     }
 
-    catalog = {}        
+    @catalog = {}        
     xml_cfg.xpath('//security-zone').each do |zone|
       zn_name = zone.xpath('name').text.strip
-      catalog[zn_name] = {}
-      xml_read_parser( zone, catalog[zn_name] )
+      @catalog[zn_name] = {}
+      xml_read_parser( zone, @catalog[zn_name] )
     end
     
-    return catalog    
+    return @catalog    
   end
   
 end

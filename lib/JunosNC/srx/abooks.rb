@@ -87,7 +87,7 @@ class JunosNC::SRX::AddressBookSets::Provider
   
   def build_catalog    
     
-    catalog = {}
+    @catalog = {}
     
     @ndev.rpc.get_configuration{ |x|
       x.security { x.zones {
@@ -99,11 +99,11 @@ class JunosNC::SRX::AddressBookSets::Provider
       }}
     }.xpath('//address-set').each{ |set| 
       name = set.xpath('name').text
-      catalog[name] = {}
-      xml_read_parser( set, catalog[name] )      
+      @catalog[name] = {}
+      xml_read_parser( set, @catalog[name] )      
     }
     
-    return catalog  
+    return @catalog  
   end
   
 end

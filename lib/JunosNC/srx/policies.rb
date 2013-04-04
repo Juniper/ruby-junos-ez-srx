@@ -68,18 +68,18 @@ class JunosNC::SRX::Policies::Provider
   end
   
   def build_catalog
-    catalog = {}  
+    @catalog = {}  
     fw = @ndev.rpc.get_firewall_policies( :zone_context => true )
     fw.xpath('policy-zone-context/policy-zone-context-entry').collect do |pzc|
       
       name = [pzc.xpath('policy-zone-context-from-zone').text,
           pzc.xpath('policy-zone-context-to-zone').text  ]
       
-      catalog[name] = {
+      @catalog[name] = {
         :rules_count => pzc.xpath('policy-zone-context-policy-count').text.to_i
       }
     end    
-    return catalog
+    return @catalog
   end  
 end
 

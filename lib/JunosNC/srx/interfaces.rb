@@ -98,18 +98,18 @@ class JunosNC::SRX::Interfaces::Provider
   end
   
   def build_catalog    
-    catalog = {}    
+    @catalog = {}    
     
     xml_get = @parent.xml_at_top
     xml_get.interfaces
     xml_cfg = @ndev.rpc.get_configuration( xml_get )
     xml_cfg.xpath('//interfaces').each do |zif|
       zif_name = zif.xpath('name').text
-      catalog[zif_name] = {}
-      xml_read_parser( zif, catalog[zif_name] )
+      @catalog[zif_name] = {}
+      xml_read_parser( zif, @catalog[zif_name] )
     end
 
-    return catalog
+    return @catalog
   end
   
 end

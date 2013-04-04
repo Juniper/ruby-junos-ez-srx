@@ -2,6 +2,7 @@ require 'yaml'
 require 'net/netconf/jnpr'
 
 require 'JunosNC/facts'
+require 'JunosNC/l1_ports'
 require 'JunosNC/ip_ports'
 require 'JunosNC/srx'
 
@@ -17,6 +18,7 @@ class JunosDevice < Netconf::SSH
   def open
     super
     JunosNC::Facts::Provider( self )    
+    JunosNC::L1ports::Provider( self, :l1_ports )
     JunosNC::IPports::Provider( self, :ip_ports )
     JunosNC::SRX::Zones::Provider( self, :zones )  
     JunosNC::SRX::Policies::Provider( self, :zpols )
@@ -31,6 +33,8 @@ unless host
 end
 
 JunosDevice.new( host ) do |ndev|
+  
+  binding.pry
   
   from_zone_name = "PII-SOX-BZ-ST1"
   to_zone_name = "OUTSIDE-BZ-ST1"
