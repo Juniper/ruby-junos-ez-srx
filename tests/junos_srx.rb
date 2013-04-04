@@ -2,6 +2,7 @@ require 'yaml'
 require 'net/netconf/jnpr'
 
 require 'JunosNC/facts'
+require 'JunosNC/ip_ports'
 require 'JunosNC/srx'
 
 require_relative 'mylogins'
@@ -16,8 +17,9 @@ class JunosDevice < Netconf::SSH
   def open
     super
     JunosNC::Facts::Provider( self )    
+    JunosNC::IPports::Provider( self, :ip_ports )
     JunosNC::SRX::Zones::Provider( self, :zones )  
-    JunosNC::SRX::Policies::Provider( self, :spols )
+    JunosNC::SRX::Policies::Provider( self, :zpols )
   end
   
 end
@@ -26,22 +28,26 @@ host = MyLogins::HOSTS[ ARGV[0] ]
 
 JunosDevice.new( host ) do |ndev|
   
-#  ndev.spols.create_big_from_yaml! "foo.yaml"  :replace=>true 
-    
+  binding.pry
+  
   from_zone_name = "PII-SOX-BZ-ST1"
   to_zone_name = "OUTSIDE-BZ-ST1"
   
   from_zone = ndev.zones[ from_zone_name ]
   to_zone = ndev.zones[ to_zone_name ]  
-  
+  zpol_name = [ from_zone_name, to_zone_name ]
+  zpol = ndev.zpols[ zpol_name ]   
+
   binding.pry
   
-  polc = ndev.spols[ [from_zone_name, to_zone_name] ]  
-  rules = polc.rules.list!
-  rule = polc.rules["545"]
+  ndev.zpols.create_from_yaml! :filename=> "srx-policy.yaml",  :replace=>true       
+  
+  rule_list = zpol.rules.list!
+  rule = zpol.rules["545"]
   
   binding.pry
-    
+
+=begin  
   # hash of new properties ...  
   new_rule_props = {
     :description => "This is a test policy rule for JEREMY",
@@ -51,14 +57,14 @@ JunosDevice.new( host ) do |ndev|
     :action => :permit    
   }
 
-  polc.rules.ignore_raise = true  
-  polc.rules.create( "JEREMY", new_rule_props ) do |rule|
-    binding.pry
+  zpol.rules.ignore_raise = true  
+  zpol.rules.create( "JEREMY", new_rule_props ) do |rule|
     rule.write!
     rule.reorder! :before => rules.last
   end
     
   binding.pry
+=end  
         
 end
 

@@ -84,21 +84,27 @@ class JunosNC::SRX::Policies::Provider
 end
 
 ##### ---------------------------------------------------------------
-##### Provider "big" IN & OUT methods
+##### Provider EXPANDED methods
 ##### ---------------------------------------------------------------
 
 class JunosNC::SRX::Policies::Provider
   
-  def big_to_hash( opts = {:cleanse=>true} )   
+  def expanded_to_hash( opts = {} )   
+    
+    unless opts[:brief]; return {
+       :name => @name,
+       :rules => rules.catalog!
+    } 
+    end    
+    
+    # make a deep-copy of the catalog since we're going 
+    # to mung it, yo Marshal!
     
     out_hash = { 
       :name => @name,
-      :rules => rules.catalog!
+      :rules => Marshal.load( Marshal.dump( rules.catalog! ))
     }
     
-    return out_hash unless opts[:cleanse]
-    
-    # cleanse the hash before we write it out
     out_hash[:rules].each do |rule_name, rule_hash|
       rule_hash.delete :exist if rule_hash[:exist] == true
       rule_hash.delete :active if rule_hash[:active] == true
@@ -114,11 +120,9 @@ class JunosNC::SRX::Policies::Provider
   ## :xml_big_from_hash called from provider :create_big_from_yaml!  
   ## ----------------------------------------------------------------
   
-  def xml_big_from_hash( from_hash, opts = {} )    
+  def expanded_xml_from_hash( from_hash, opts = {} )    
     raise ArgumentError, "This is not a provider" unless is_provider?       
-
-    # the hash *MUST* include a :name element that identifies the
-    # Policy context.  @@@ need to check/validate this
+    raise ArgumentError, ":name not provided in hash" unless from_hash[:name]
     
     provd = self.class.new( @ndev, from_hash[:name], @opts )   
     

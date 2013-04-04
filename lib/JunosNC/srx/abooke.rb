@@ -117,8 +117,8 @@ class JunosNC::SRX::AddressBookEntries::Provider
   end  
   
   def lpm_find( addr )
-    return nil unless lpm = lpm_find_all( addr )
-    lpm[0]
+    return nil unless found = find( addr )
+    found[0]
   end
   
   private
