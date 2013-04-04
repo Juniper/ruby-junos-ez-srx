@@ -25,10 +25,12 @@ class JunosDevice < Netconf::SSH
 end
 
 host = MyLogins::HOSTS[ ARGV[0] ]
+unless host 
+  puts "Unknown host: '#{ARGV[0]}'"
+  exit 1
+end
 
 JunosDevice.new( host ) do |ndev|
-  
-  binding.pry
   
   from_zone_name = "PII-SOX-BZ-ST1"
   to_zone_name = "OUTSIDE-BZ-ST1"
@@ -37,17 +39,12 @@ JunosDevice.new( host ) do |ndev|
   to_zone = ndev.zones[ to_zone_name ]  
   zpol_name = [ from_zone_name, to_zone_name ]
   zpol = ndev.zpols[ zpol_name ]   
-
-  binding.pry
   
   ndev.zpols.create_from_yaml! :filename=> "srx-policy.yaml",  :replace=>true       
   
   rule_list = zpol.rules.list!
   rule = zpol.rules["545"]
   
-  binding.pry
-
-=begin  
   # hash of new properties ...  
   new_rule_props = {
     :description => "This is a test policy rule for JEREMY",
@@ -57,14 +54,12 @@ JunosDevice.new( host ) do |ndev|
     :action => :permit    
   }
 
-  zpol.rules.ignore_raise = true  
   zpol.rules.create( "JEREMY", new_rule_props ) do |rule|
     rule.write!
-    rule.reorder! :before => rules.last
+    rule.reorder! :before => rule_list.last
   end
     
   binding.pry
-=end  
         
 end
 
