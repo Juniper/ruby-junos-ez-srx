@@ -63,10 +63,10 @@ end
 
 class JunosNC::SRX::AddressBookEntries::Provider
   
-  def list!    
+  def build_list
     @ndev.rpc.get_configuration{ |x|
       x.security { x.zones {
-        x.send(:'security-zone') { x.name @opts[:zone].name
+        x.send(:'security-zone') { x.name @parent.name
           x.send(:'address-book') {
             x.address({:recurse => 'false' })
           }
@@ -77,7 +77,7 @@ class JunosNC::SRX::AddressBookEntries::Provider
     }
   end
   
-  def catalog!
+  def build_catalog
     Hash[ @ndev.rpc.get_configuration{ |x|
       x.security { x.zones {
         x.send(:'security-zone') { x.name @parent.name
@@ -99,31 +99,41 @@ end
 
 class JunosNC::SRX::AddressBookEntries::Provider
   
-  def lpm_cache_create!
-    unless @lpm_cache
-      puts "building cache"
-      @lpm_cache ||= catalog!.collect{|k,adr| IPAddress.parse( adr )}
-    end      
-  end
-
-  def lpm_cache_clear!
-    @lpm_cache = nil
-  end
-  
-  def lpm_find( addr )
+  def find( addr )
     lpm_cache_create!
         
     # turn the given string into a searchable IPAddress object
     find_addr = IPAddress( addr )
+  
+    # search the cache for a matching item
+    found = @zab_lpm_cache.select{ |name, ab_addr, ipadr|
+      ipadr.include? find_addr
+    }
     
-    # go for an exact match first
-    found = @lpm_cache.include? find_addr
-    return found if found     
+    return nil if found.empty?    
     
-    # now do a brute-force include for longest prefix match
-    found = @lpm_cache.select{|i| i.include? find_addr }
-    return found.empty? ? nil : found
+    # return a sorted result with highest prefix first
+    found.sort_by{ |n,a,ip| ip.prefix }.reverse!    
   end  
   
+  def lpm_find( addr )
+    return nil unless lpm = lpm_find_all( addr )
+    lpm[0]
+  end
+  
+  private
+  
+  def lpm_cache_create!
+    # cache is an array-of-arrays
+    # [0] = address-book name
+    # [1] = address-book address (string)
+    # [2] = IPAddress of [1] for searching
+    @zab_lpm_cache ||= catalog!.collect{ |k,adr| 
+      [ k, adr, IPAddress.parse( adr ) ]
+    }
+  end
+
+  def lpm_cache_clear!; @zab_lpm_cache = nil end
+
 end
 

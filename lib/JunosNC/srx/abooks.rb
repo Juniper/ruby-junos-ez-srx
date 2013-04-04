@@ -11,7 +11,7 @@ class JunosNC::SRX::AddressBookSets::Provider < JunosNC::Provider::Parent
   def xml_at_top    
     Nokogiri::XML::Builder.new{ |x| x.configuration{ 
       x.security { x.zones {
-        x.send(:'security-zone') { x.name @opts[:zone].name
+        x.send(:'security-zone') { x.name @parent.name
           x.send(:'address-book') {
             x.send(:'address-set') { 
               x.name @name 
@@ -71,10 +71,10 @@ end
 
 class JunosNC::SRX::AddressBookSets::Provider
   
-  def list!    
+  def build_list   
     @ndev.rpc.get_configuration{ |x|
       x.security { x.zones {
-        x.send(:'security-zone') { x.name @opts[:zone].name
+        x.send(:'security-zone') { x.name @parent.name
           x.send(:'address-book') {
             x.send(:'address-set', {:recurse => 'false' })
           }
@@ -85,12 +85,13 @@ class JunosNC::SRX::AddressBookSets::Provider
     }
   end
   
-  def catalog!    
+  def build_catalog    
+    
     catalog = {}
     
     @ndev.rpc.get_configuration{ |x|
       x.security { x.zones {
-        x.send(:'security-zone') { x.name @opts[:zone].name
+        x.send(:'security-zone') { x.name @parent.name
           x.send(:'address-book') {
             x.send(:'address-set')
           }

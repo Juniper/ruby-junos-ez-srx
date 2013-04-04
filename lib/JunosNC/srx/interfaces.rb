@@ -8,12 +8,10 @@ class JunosNC::SRX::Interfaces::Provider < JunosNC::Provider::Parent
     
   def xml_at_top
     
-    @zone_name = @opts[:zone].name
-    
     Nokogiri::XML::Builder.new{|x| x.configuration{ 
       x.security { x.zones {
         x.send(:'security-zone') { 
-          x.name @zone_name
+          x.name @parent.name
           x.interfaces {
             x.name @name
             return x
@@ -91,18 +89,18 @@ end
 
 class JunosNC::SRX::Interfaces::Provider
   
-  def list!    
-    args = { :get_zones_named_information => @opts[:zone].name }    
+  def build_list    
+    args = { :get_zones_named_information => @parent.name }    
     zinfo = @ndev.rpc.get_zones_information( args )
     zinfo.xpath('//zones-security-interface-name').collect do |zif|
       zif.text
     end
   end
   
-  def catalog!
+  def build_catalog    
     catalog = {}    
     
-    xml_get = @opts[:zone].xml_at_top
+    xml_get = @parent.xml_at_top
     xml_get.interfaces
     xml_cfg = @ndev.rpc.get_configuration( xml_get )
     xml_cfg.xpath('//interfaces').each do |zif|

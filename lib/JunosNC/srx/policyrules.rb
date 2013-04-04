@@ -133,14 +133,14 @@ end
 
 class JunosNC::SRX::PolicyRules::Provider  
   
-  def list!     
+  def build_list
     xml_get = @parent.xml_at_top
     xml_get.policy( :recurse => 'false' )
     xml_got = @ndev.rpc.get_configuration( xml_get )    
     xml_got.xpath('//name').collect{|n| n.text }
   end
   
-  def catalog!
+  def build_catalog
     catalog = {}
     xml_got = @ndev.rpc.get_configuration( @parent.xml_at_top )
     pols = xml_got.xpath('security/policies/policy')

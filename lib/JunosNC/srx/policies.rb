@@ -59,7 +59,7 @@ end
 
 class JunosNC::SRX::Policies::Provider  
   
-  def list!     
+  def build_list     
     fw = @ndev.rpc.get_firewall_policies( :zone_context => true )
     fw.xpath('policy-zone-context/policy-zone-context-entry').collect do |pzc|
       [ pzc.xpath('policy-zone-context-from-zone').text,
@@ -67,7 +67,7 @@ class JunosNC::SRX::Policies::Provider
     end
   end
   
-  def catalog!
+  def build_catalog
     catalog = {}  
     fw = @ndev.rpc.get_firewall_policies( :zone_context => true )
     fw.xpath('policy-zone-context/policy-zone-context-entry').collect do |pzc|

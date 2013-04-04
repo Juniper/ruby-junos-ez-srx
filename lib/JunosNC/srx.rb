@@ -8,7 +8,7 @@ module JunosNC::SRX::Zones
   PROPERTIES = [
     :host_inbound_services,       ## array of service names | nil
     :host_inbound_protocols,      ## array of protocol names | nil
-    :interfaces                   ## R/O array of interface names
+    :interfaces                   ## R/O array of interface names, will not catalog deeply
   ]  
 
   def self.Provider( ndev, varsym )       
