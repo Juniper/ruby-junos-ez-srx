@@ -1,0 +1,160 @@
+---
+:name:
+- PII-SOX-BZ-ST1
+- OUTSIDE-BZ-ST1
+:rules:
+  '30':
+    :match_srcs:
+    - ST1-BZ-PII-SOX-NETS
+    :match_dsts:
+    - any
+    :match_apps:
+    - x-junos-icmp-all
+    :action: :permit
+  '40':
+    :match_srcs:
+    - ST1-BZ-PII-SOX-NETS
+    :match_dsts:
+    - DNS-SERVERS
+    :match_apps:
+    - x-junos-dns-udp
+    - x-junos-dns-tcp
+    :action: :permit
+  '50':
+    :match_srcs:
+    - ST1-BZ-PII-SOX-NETS
+    :match_dsts:
+    - NTP-SERVERS
+    :match_apps:
+    - junos-ntp
+    :action: :permit
+  '60':
+    :match_srcs:
+    - ST1-BZ-PII-SOX-NETS
+    :match_dsts:
+    - MAIL-RELAYS
+    :match_apps:
+    - TCP-25
+    :action: :permit
+  '100':
+    :match_srcs:
+    - ST1-ROVER-BZ-PII-MAILAPP
+    :match_dsts:
+    - any
+    :match_apps:
+    - TCP-25
+    :action: :permit
+  '105':
+    :match_srcs:
+    - ST1-MTA-TXN-BZ-PII-APP
+    :match_dsts:
+    - HOST-MSBADGER-SUPPORT
+    :match_apps:
+    - TCP-443
+    :action: :permit
+  '500':
+    :match_srcs:
+    - ST1-BZ-PII-SOX-NETS
+    :match_dsts:
+    - NETWORK-MANAGEMENT-NETS
+    - GNCS-OVPI
+    :match_apps:
+    - SET-HP-MONITORING-TRAP
+    :action: :permit
+  '505':
+    :match_srcs:
+    - ST1-BZ-PII-SOX-NETS
+    :match_dsts:
+    - TEAMQUEST-SERVERS
+    :match_apps:
+    - SET-TEAMQUEST-ACCESS
+    :action: :permit
+  '510':
+    :match_srcs:
+    - ST1-BZ-PII-SOX-NETS
+    :match_dsts:
+    - YUM-REPO-HOSTS
+    :match_apps:
+    - TCP-3028
+    :action: :permit
+  '515':
+    :match_srcs:
+    - ST1-BZ-PII-SOX-NETS
+    :match_dsts:
+    - RERUN-HOSTS
+    :match_apps:
+    - TCP-3029
+    :action: :permit
+  '520':
+    :match_srcs:
+    - ST1-BZ-PII-SOX-NETS
+    :match_dsts:
+    - GCSSVN-HOSTS
+    - XRAY-HOSTS
+    :match_apps:
+    - TCP-80
+    :action: :permit
+  '525':
+    :match_srcs:
+    - ST1-BZ-PII-SOX-NETS
+    :match_dsts:
+    - SYSLOG-SERVERS
+    :match_apps:
+    - UDP-514
+    :action: :permit
+  '530':
+    :match_srcs:
+    - ST1-BZ-PII-SOX-NETS
+    :match_dsts:
+    - ESPRESSO-SERVERS
+    :match_apps:
+    - TCP-9001
+    :action: :permit
+  '535':
+    :match_srcs:
+    - ST1-BZ-PII-SOX-NETS
+    :match_dsts:
+    - NWK-BZ-LDAP-HOSTS
+    - EG-BZ-LDAP-HOSTS
+    :match_apps:
+    - TCP-389
+    - TCP-636
+    :action: :permit
+  '540':
+    :match_srcs:
+    - ST1-BZ-PII-SOX-NETS
+    :match_dsts:
+    - HOST-NCNA11A.CORP
+    :match_apps:
+    - SET-NFS-SUN
+    :action: :permit
+  '545':
+    :active: false
+    :match_srcs:
+    - NET-23.171.37.0/24
+    :match_dsts:
+    - HOST-SOYMILK.CORP
+    - HOST-ISLINGTON.CORP
+    - HOST-PUPPET.CORP
+    :match_apps:
+    - TCP-3046
+    - TCP-3047
+    :action: :permit
+  DENY-PII-SOX-BZ-ST1-TO-OUTSIDE-TCP:
+    :match_srcs:
+    - any
+    :match_dsts:
+    - any
+    :match_apps:
+    - TCP-ALL
+    :action: :deny
+    :log_init: true
+  DENY-PII-SOX-BZ-ST1-TO-OUTSIDE:
+    :match_srcs:
+    - any
+    :match_dsts:
+    - any
+    :match_apps:
+    - any
+    :action: :deny
+    :log_init: true
