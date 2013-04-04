@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # OVERVIEW
 
   A collection of Junos SRX NETCONF libraries
@@ -26,9 +25,3 @@
 # LICENSES
 
    BSD-2, See LICENSE file
-=======
-junos-nc-srx
-============
-
-Junos SRX NETCONF libraries
->>>>>>> 9d259dc7f7f15ff51d7ac7ab8a02fff9335ac84e
