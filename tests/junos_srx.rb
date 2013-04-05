@@ -10,8 +10,6 @@ require_relative 'mylogins'
 
 class JunosDevice < Netconf::SSH
   
-  include JunosNC::Facts
-  
   # overload the open method to the Junos device and then
   # create provider objects starting with Facts ...
   
