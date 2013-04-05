@@ -30,9 +30,10 @@ unless host
   exit 1
 end
 
+filename = "srx-policy.yaml"
+
 JunosDevice.new( host ) do |ndev|
-    
-  binding.pry
+   
   
   from_zone_name = "PII-SOX-BZ-ST1"
   to_zone_name = "OUTSIDE-BZ-ST1"
@@ -40,9 +41,11 @@ JunosDevice.new( host ) do |ndev|
   from_zone = ndev.zones[ from_zone_name ]
   to_zone = ndev.zones[ to_zone_name ]  
   zpol_name = [ from_zone_name, to_zone_name ]
-  zpol = ndev.zpols[ zpol_name ]   
+  zpol = ndev.zpols[ zpol_name ]  
   
-  ndev.zpols.create_from_yaml! :filename=> "srx-policy.yaml",  :replace=>true       
+  binding.pry
+  
+  ndev.zpols.create_from_yaml!( :filename=> filename,  :replace=>true  )
   
   rule_list = zpol.rules.list!
   rule = zpol.rules["545"]
@@ -61,9 +64,26 @@ JunosDevice.new( host ) do |ndev|
     rule.reorder! :before => rule_list.last
   end
     
-  binding.pry
-        
+  binding.pry  rule_list = zpol.rules.list!
+  rule = zpol.rules["545"]
+  
+  # hash of new properties ...  
+  new_rule_props = {
+    :description => "This is a test policy rule for JEREMY",
+    :match_srcs => ["S1","S2"],
+    :match_dsts => ["D1", "D2"],
+    :match_apps => ["any"],
+    :action => :permit    
+  }
+
+  zpol.rules.create( "JEREMY", new_rule_props ) do |rule|
+    rule.write!
+    rule.reorder! :before => rule_list.last
+  end
+  
 end
+
+    
 
 
 
