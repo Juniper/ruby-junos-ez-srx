@@ -5,7 +5,7 @@ require 'net/netconf'
 Gem::Specification.new do |s|
 
   s.name = 'junos-nc-srx'
-  s.version = '0.0.1'
+  s.version = '0.0.2'
   s.summary = "Junos NETCONF for SRX"
   s.description = "Junos SRX gem for application development using NETCONF"
   s.homepage = 'https://github.com/jeremyschulman/ruby-junos-nc-srx'
@@ -15,6 +15,6 @@ Gem::Specification.new do |s|
   s.files.delete 'tests/mylogins.rb'
 
   s.add_dependency('netconf')
-  s.add_dependency('junos-nc-stdlib')
+  s.add_dependency('junos-nc-stdlib', '>= 0.0.2')
 
 end
