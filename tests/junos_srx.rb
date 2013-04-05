@@ -14,12 +14,12 @@ class JunosDevice < Netconf::SSH
   # create provider objects starting with Facts ...
   
   def open
-    super
-    JunosNC::Facts::Provider( self )    
-    JunosNC::L1ports::Provider( self, :l1_ports )
-    JunosNC::IPports::Provider( self, :ip_ports )
-    JunosNC::SRX::Zones::Provider( self, :zones )  
-    JunosNC::SRX::Policies::Provider( self, :zpols )
+    super                                                     # open connection to device
+    JunosNC::Facts::Provider( self )                          # Facts must always be first!
+    JunosNC::L1ports::Provider( self, :l1_ports )             # manage IFD properties
+    JunosNC::IPports::Provider( self, :ip_ports )             # manage IPv4 interfaces
+    JunosNC::SRX::Zones::Provider( self, :zones )             # manage security zones
+    JunosNC::SRX::Policies::Provider( self, :zpols )          # manage secuirty policies
   end
   
 end
@@ -31,7 +31,7 @@ unless host
 end
 
 JunosDevice.new( host ) do |ndev|
-  
+    
   binding.pry
   
   from_zone_name = "PII-SOX-BZ-ST1"
