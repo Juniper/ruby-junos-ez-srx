@@ -1,4 +1,4 @@
-class JunosNC::SRX::Zones::Provider < JunosNC::Provider::Parent
+class Junos::Ez::SRX::Zones::Provider < Junos::Ez::Provider::Parent
   
   def initialize( p_obj, name = nil, opts = {} )
     super
@@ -8,9 +8,9 @@ class JunosNC::SRX::Zones::Provider < JunosNC::Provider::Parent
     ##    'addrs' for address-book address entries
     ##    'sets' for address-book address sets
     
-    JunosNC::SRX::Interfaces::Provider( self, :interfaces, :parent => self ) 
-    JunosNC::SRX::AddressBookEntries::Provider( self, :addrs, :parent => self )
-    JunosNC::SRX::AddressBookSets::Provider( self, :sets, :parent => self )
+    Junos::Ez::SRX::Interfaces::Provider( self, :interfaces, :parent => self ) 
+    Junos::Ez::SRX::AddressBookEntries::Provider( self, :addrs, :parent => self )
+    Junos::Ez::SRX::AddressBookSets::Provider( self, :sets, :parent => self )
   end
   
   ### ---------------------------------------------------------------
@@ -101,7 +101,7 @@ end
 ##### Provider collection methods
 ##### ---------------------------------------------------------------
 
-class JunosNC::SRX::Zones::Provider
+class Junos::Ez::SRX::Zones::Provider
   
   def build_list     
     zones = @ndev.rpc.get_zones_information

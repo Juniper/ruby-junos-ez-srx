@@ -1,6 +1,6 @@
 
 
-class JunosNC::SRX::Interfaces::Provider < JunosNC::Provider::Parent
+class Junos::Ez::SRX::Interfaces::Provider < Junos::Ez::Provider::Parent
   
   ### ---------------------------------------------------------------
   ### XML top placement
@@ -87,7 +87,7 @@ end
 ##### Provider collection methods
 ##### ---------------------------------------------------------------
 
-class JunosNC::SRX::Interfaces::Provider
+class Junos::Ez::SRX::Interfaces::Provider
   
   def build_list    
     args = { :get_zones_named_information => @parent.name }    

@@ -1,4 +1,4 @@
-class JunosNC::SRX::PolicyRules::Provider < JunosNC::Provider::Parent
+class Junos::Ez::SRX::PolicyRules::Provider < Junos::Ez::Provider::Parent
     
   ### ---------------------------------------------------------------
   ### XML top placement
@@ -52,13 +52,8 @@ class JunosNC::SRX::PolicyRules::Provider < JunosNC::Provider::Parent
     ## "then" criteria
     ## --------------------------------
     
-    as_hash[:action] = if r_then.xpath('permit')[0]
-      :permit
-    elsif r_then.xpath('reject')[0]
-      :reject
-    elsif r_then.xpath('deny')[0]
-      :deny
-    end    
+    action = r_then.xpath('permit | reject | deny')[0]
+    as_hash[:action] = action.name.to_sym
     
     as_hash[:count] = not( r_then.xpath('count').empty? )    
     as_hash[:log_init] = not( r_then.xpath('log/session-init').empty? )
@@ -131,7 +126,7 @@ end
 ##### Provider collection methods
 ##### ---------------------------------------------------------------
 
-class JunosNC::SRX::PolicyRules::Provider  
+class Junos::Ez::SRX::PolicyRules::Provider  
   
   def build_list
     xml_get = @parent.xml_at_top

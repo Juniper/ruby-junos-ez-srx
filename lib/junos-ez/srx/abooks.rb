@@ -2,7 +2,7 @@
 ##### Provider resource methods
 ##### ---------------------------------------------------------------
 
-class JunosNC::SRX::AddressBookSets::Provider < JunosNC::Provider::Parent
+class Junos::Ez::SRX::AddressBookSets::Provider < Junos::Ez::Provider::Parent
   
   ### ---------------------------------------------------------------
   ### XML top placement
@@ -69,7 +69,7 @@ end
 ##### Provider collection methods
 ##### ---------------------------------------------------------------
 
-class JunosNC::SRX::AddressBookSets::Provider
+class Junos::Ez::SRX::AddressBookSets::Provider
   
   def build_list   
     @ndev.rpc.get_configuration{ |x|

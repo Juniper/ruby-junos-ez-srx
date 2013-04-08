@@ -2,10 +2,10 @@
 require 'net/netconf/jnpr'
 
 # from gem junos-nc-stdlib
-require 'JunosNC/stdlib'
+require 'junos-ez/stdlib'
 
 # from gem junos-nc-srx
-require 'JunosNC/srx'
+require 'junos-ez/srx'
 
 login = { :target => 'vsrx',
   :username => 'jeremy', 

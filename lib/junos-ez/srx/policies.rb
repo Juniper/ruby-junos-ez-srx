@@ -1,4 +1,4 @@
-class JunosNC::SRX::Policies::Provider < JunosNC::Provider::Parent
+class Junos::Ez::SRX::Policies::Provider < Junos::Ez::Provider::Parent
   attr_reader :from_zone_name, :to_zone_name
   
   def initialize( p_obj, name = nil, opts = {} )
@@ -6,7 +6,7 @@ class JunosNC::SRX::Policies::Provider < JunosNC::Provider::Parent
     return unless name            
         
     # bind in the child provider for managing the actual rules    
-    JunosNC::SRX::PolicyRules::Provider( self, :rules, :parent => self )     
+    Junos::Ez::SRX::PolicyRules::Provider( self, :rules, :parent => self )     
   end
   
   ### ---------------------------------------------------------------
@@ -57,7 +57,7 @@ end
 ##### Provider collection methods
 ##### ---------------------------------------------------------------
 
-class JunosNC::SRX::Policies::Provider  
+class Junos::Ez::SRX::Policies::Provider  
   
   def build_list     
     fw = @ndev.rpc.get_firewall_policies( :zone_context => true )
@@ -87,9 +87,13 @@ end
 ##### Provider EXPANDED methods
 ##### ---------------------------------------------------------------
 
-class JunosNC::SRX::Policies::Provider
+class Junos::Ez::SRX::Policies::Provider
+
+  ## ----------------------------------------------------------------
+  ## create an 'expanded' hash structure
+  ## ----------------------------------------------------------------
   
-  def expanded_to_hash( opts = {} )   
+  def to_h_expanded( opts = {} )   
     
     unless opts[:brief]; return {
        :name => @name,
@@ -117,10 +121,9 @@ class JunosNC::SRX::Policies::Provider
   end
 
   ## ----------------------------------------------------------------
-  ## :xml_big_from_hash called from provider :create_big_from_yaml!  
   ## ----------------------------------------------------------------
   
-  def expanded_xml_from_hash( from_hash, opts = {} )    
+  def xml_from_h_expanded( from_hash, opts = {} )    
     raise ArgumentError, "This is not a provider" unless is_provider?       
     raise ArgumentError, ":name not provided in hash" unless from_hash[:name]
     
@@ -138,7 +141,7 @@ class JunosNC::SRX::Policies::Provider
       Nokogiri::XML::Builder.with( xml_add_here ) do |xml|
         
         # create the new object so we can generate XML on it
-        rule = JunosNC::SRX::PolicyRules::Provider.new( @ndev, name, :parent => provd )            
+        rule = Junos::Ez::SRX::PolicyRules::Provider.new( @ndev, name, :parent => provd )            
                 
         # generate the object specific XML inside
         rule.should = hash

@@ -4,7 +4,7 @@
 
 require 'ipaddress'
 
-class JunosNC::SRX::AddressBookEntries::Provider < JunosNC::Provider::Parent
+class Junos::Ez::SRX::AddressBookEntries::Provider < Junos::Ez::Provider::Parent
   
   ### ---------------------------------------------------------------
   ### XML top placement
@@ -61,7 +61,7 @@ end
 ##### Provider collection methods
 ##### ---------------------------------------------------------------
 
-class JunosNC::SRX::AddressBookEntries::Provider
+class Junos::Ez::SRX::AddressBookEntries::Provider
   
   def build_list
     @ndev.rpc.get_configuration{ |x|
@@ -97,7 +97,7 @@ end
 ##### Provider operational methods
 ##### ---------------------------------------------------------------
 
-class JunosNC::SRX::AddressBookEntries::Provider
+class Junos::Ez::SRX::AddressBookEntries::Provider
   
   def find( addr )
     lpm_cache_create!

@@ -1,10 +1,8 @@
 require 'yaml'
 require 'net/netconf/jnpr'
 
-require 'JunosNC/facts'
-require 'JunosNC/l1_ports'
-require 'JunosNC/ip_ports'
-require 'JunosNC/srx'
+require 'junos-ez/stdlib'
+require 'junos-ez/srx'
 
 require_relative 'mylogins'
 
@@ -14,26 +12,33 @@ class JunosDevice < Netconf::SSH
   # create provider objects starting with Facts ...
   
   def open
-    super                                                     # open connection to device
-    JunosNC::Facts::Provider( self )                          # Facts must always be first!
-    JunosNC::L1ports::Provider( self, :l1_ports )             # manage IFD properties
-    JunosNC::IPports::Provider( self, :ip_ports )             # manage IPv4 interfaces
-    JunosNC::SRX::Zones::Provider( self, :zones )             # manage security zones
-    JunosNC::SRX::Policies::Provider( self, :zpols )          # manage secuirty policies
+    super                                                       # open connection to device
+    Junos::Ez::Facts::Provider( self )                          # Facts must always be first!
+    Junos::Ez::Hosts::Provider( self, :hosts )                  # manage staic host mapping
+    Junos::Ez::StaticRoutes::Provider( self, :routes )          # manage static routes
+    Junos::Ez::L1ports::Provider( self, :l1_ports )             # manage IFD properties
+    Junos::Ez::IPports::Provider( self, :ip_ports )             # manage IPv4 interfaces
+    Junos::Ez::SRX::Zones::Provider( self, :zones )             # manage security zones
+    Junos::Ez::SRX::Policies::Provider( self, :zpols )          # manage secuirty policies
+  end
+  
+  def rollback( rbid = 0 )
+    @rpc.load_configuration( :rollback => rbid.to_s )
+  end
+  def commit_check
+    @rpc.commit_configuration( :check => true )
   end
   
 end
 
-host = MyLogins::HOSTS[ ARGV[0] ]
-unless host 
-  puts "Unknown host: '#{ARGV[0]}'"
-  exit 1
-end
-
+target = ARGV[0] || "vsrx"
+host = MyLogins::HOSTS[ target ] 
 filename = "srx-policy.yaml"
 
 JunosDevice.new( host ) do |ndev|
-   
+  
+  rt = ndev.routes[:default]
+  binding.pry
   
   from_zone_name = "PII-SOX-BZ-ST1"
   to_zone_name = "OUTSIDE-BZ-ST1"
