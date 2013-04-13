@@ -5,12 +5,6 @@ require 'junos-ez/srx'
 
 login = {:target => 'vsrx', :username => 'jeremy', :password => 'jeremy1' }
 
-def yaml_zone( zone )
-  zone.to_yaml :filename => prefix + ".yaml"
-  zone.addrs.to_yaml :filename => prefix + "-addrs.yaml"
-  zone.sets.to_yaml :filename => prefix + "-sets.yaml"
-end
-
 ndev = Netconf::SSH.new( login )
 ndev.open
 

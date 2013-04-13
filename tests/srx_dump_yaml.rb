@@ -3,19 +3,15 @@ require 'net/netconf/jnpr'
 require 'junos-ez/stdlib'
 require 'junos-ez/srx'
 
-require_relative 'mylogins'
-
-
-target = ARGV[0] || "vsrx"
-host = MyLogins::HOSTS[ target ] 
-
 def yaml_zone( zone )
   zone.to_yaml :filename => zone.name + "_ZONE_IFS.yaml"
   zone.addrs.to_yaml :filename => zone.name + "_ZONE_ADDRS.yaml"
   zone.sets.to_yaml :filename => zone.name + "_ZONE_SETS.yaml"
 end
 
-ndev = Netconf::SSH.new( host )
+login = {:target => 'vsrx', :username => 'jeremy', :password => 'jeremy1' }
+
+ndev = Netconf::SSH.new( login )
 ndev.open
 
 Junos::Ez::Provider( ndev )
