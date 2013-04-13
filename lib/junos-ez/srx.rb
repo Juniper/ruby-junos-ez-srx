@@ -5,13 +5,14 @@ module Junos::Ez::SRX; end
 module Junos::Ez::SRX::Zones
 
   PROPERTIES = [
+    :description,                 ## description for Zone
     :host_inbound_services,       ## array of service names | nil
     :host_inbound_protocols,      ## array of protocol names | nil
     :interfaces                   ## R/O array of interface names, will not catalog deeply
   ]  
 
-  def self.Provider( ndev, varsym )       
-    newbie = Junos::Ez::SRX::Zones::Provider.new( ndev )     
+  def self.Provider( ndev, varsym, opts = {} )       
+    newbie = Junos::Ez::SRX::Zones::Provider.new( ndev, nil, opts )     
     newbie.properties = Junos::Ez::Provider::PROPERTIES + PROPERTIES
     Junos::Ez::Provider.attach_instance_variable( ndev, varsym, newbie )
   end

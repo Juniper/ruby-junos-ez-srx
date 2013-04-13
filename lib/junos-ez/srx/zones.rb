@@ -33,6 +33,7 @@ class Junos::Ez::SRX::Zones::Provider < Junos::Ez::Provider::Parent
   
   def xml_config_read!
     xml = xml_at_top
+    xml.description
     xml.send(:'host-inbound-traffic')
     xml.interfaces
     @ndev.rpc.get_configuration( xml )      
@@ -43,11 +44,28 @@ class Junos::Ez::SRX::Zones::Provider < Junos::Ez::Provider::Parent
   ### ---------------------------------------------------------------
 
   def xml_get_has_xml( xml )
-    xml.xpath('//security-zone')[0]
+    zone_xml = xml.xpath('//security-zone')[0]
+    return zone_xml if zone_xml
+    
+    # so there is a corner case if the zone exists, but doesn't
+    # have any interfaces or host-inbound-services.  this is probably
+    # a highly unlikely case, since a zone needs at least one inteface
+    # to be useful.  but just in case, let's check.
+    sh_zone = @ndev.rpc.get_zones_information(:get_zones_named_information => @name)
+    if sh_zone.xpath('zones-security')[0]    
+      @has[:_exist] = true
+      @has[:_active] = true
+      @has[:host_inbound_services] = []
+      @has[:host_inbound_protocols] = []
+      @has[:interfaces] = []
+    end
+    nil
   end
     
   def xml_read_parser( as_xml, as_hash )    
     set_has_status( as_xml, as_hash )        
+    
+    xml_when_item( as_xml.xpath('description')){|item| as_hash[:description] = item.text }
     
     host_ib = as_xml.xpath('host-inbound-traffic')    
     as_hash[:host_inbound_services] = host_ib.xpath('system-services').collect do |svc|
@@ -70,6 +88,7 @@ class Junos::Ez::SRX::Zones::Provider < Junos::Ez::Provider::Parent
   
   def xml_change_host_inbound_services( xml )
     add, del = diff_property_array( :host_inbound_services ) 
+    return false if add.empty? and del.empty?    
             
     xml.send( :'host-inbound-traffic' ) {
       del.each do |i| 
@@ -84,6 +103,7 @@ class Junos::Ez::SRX::Zones::Provider < Junos::Ez::Provider::Parent
   
   def xml_change_host_inbound_protocols( xml )
     add, del = diff_property_array( :host_inbound_protocols ) 
+    return false if add.empty? and del.empty?    
         
     xml.send( :'host-inbound-traffic' ) {
       del.each do |i| 
@@ -118,6 +138,7 @@ class Junos::Ez::SRX::Zones::Provider
         zlist.each do |zone_name|          
           x.send(:'security-zone') {
             x.name zone_name
+            x.description
             x.send(:'host-inbound-traffic')
             x.interfaces
           }
@@ -149,6 +170,10 @@ class Junos::Ez::SRX::Zones::Provider
   
   def to_h_expanded( opts = {} )       
     { :name => @name,
+      :_exist => @has[:_exist],
+      :_active => @has[:_active],
+      :host_inbound_services => @has[:host_inbound_services],
+      :host_inbound_protocols => @has[:host_inbound_protocols],
       :interfaces => interfaces.catalog
     } 
   end   
@@ -158,12 +183,21 @@ class Junos::Ez::SRX::Zones::Provider
     raise ArgumentError, ":name not provided in hash" unless from_hash[:name]
     
     provd = self.class.new( @ndev, from_hash[:name], @opts )   
+    provd.properties = Junos::Ez::Provider::PROPERTIES + Junos::Ez::SRX::Zones::PROPERTIES    
+    provd[:host_inbound_services] = from_hash[:host_inbound_services] || []
+    provd[:host_inbound_protocols] = from_hash[:host_inbound_protocols] || []
+    provd[:_exist] = from_hash[:_exist]
+    provd[:_active] = from_hash[:_active]    
     
     # setup the XML for writing the complete configuration
     
     xml_top = provd.xml_at_top    
     xml_add_here = xml_top.parent
-    
+        
+    Nokogiri::XML::Builder.with( xml_add_here ) do |xml|
+      provd.xml_build_change( xml )      
+    end
+        
     # iterate through each of the policy rules. @@@ need
     # to validate that the HASH actually contains this, yo!
     
