@@ -131,11 +131,13 @@ class Junos::Ez::SRX::Zones::Provider
   end
   
   def build_catalog
+    @catalog = {}
     
     zlist = list!
-    xml_cfg = @ndev.rpc.get_configuration{|x| 
+    xml_cfg = @ndev.rpc.get_configuration{|x|
       x.security { x.zones {
-        zlist.each do |zone_name|          
+        zlist.each do |zone_name|
+          @catalog[zone_name] = {}
           x.send(:'security-zone') {
             x.name zone_name
             x.description
@@ -145,15 +147,14 @@ class Junos::Ez::SRX::Zones::Provider
         end
       }}
     }
-
-    @catalog = {}        
+    
     xml_cfg.xpath('//security-zone').each do |zone|
       zn_name = zone.xpath('name').text.strip
       @catalog[zn_name] = {}
       xml_read_parser( zone, @catalog[zn_name] )
-    end
+    end    
     
-    return @catalog    
+    return @catalog  
   end
   
 end
