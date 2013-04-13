@@ -55,9 +55,9 @@ class Junos::Ez::SRX::PolicyRules::Provider < Junos::Ez::Provider::Parent
     action = r_then.xpath('permit | reject | deny')[0]
     as_hash[:action] = action.name.to_sym
     
-    as_hash[:count] = not( r_then.xpath('count').empty? )    
-    as_hash[:log_init] = not( r_then.xpath('log/session-init').empty? )
-    as_hash[:log_close] = not( r_then.xpath('log/session-close').empty? )
+    xml_when_item( r_then.xpath('count' )){ as_hash[:count] = true }
+    xml_when_item( r_then.xpath('log/session-init')){ as_hash[:log_init] = true }
+    xml_when_item( r_then.xpath('log/session-close')){ as_hash[:log_close] = true }
     
     return true
   end   

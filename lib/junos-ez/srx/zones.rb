@@ -137,3 +137,51 @@ class Junos::Ez::SRX::Zones::Provider
   
 end
 
+##### ---------------------------------------------------------------
+##### Provider YAML/Hash methods
+##### ---------------------------------------------------------------
+
+class Junos::Ez::SRX::Zones::Provider
+  
+  ## ----------------------------------------------------------------
+  ## create an 'expanded' hash structure
+  ## ----------------------------------------------------------------
+  
+  def to_h_expanded( opts = {} )       
+    { :name => @name,
+      :interfaces => interfaces.catalog
+    } 
+  end   
+  
+  def xml_from_h_expanded( from_hash, opts = {} )    
+    raise ArgumentError, "This is not a provider" unless is_provider?       
+    raise ArgumentError, ":name not provided in hash" unless from_hash[:name]
+    
+    provd = self.class.new( @ndev, from_hash[:name], @opts )   
+    
+    # setup the XML for writing the complete configuration
+    
+    xml_top = provd.xml_at_top    
+    xml_add_here = xml_top.parent
+    
+    # iterate through each of the policy rules. @@@ need
+    # to validate that the HASH actually contains this, yo!
+    
+    from_hash[:interfaces].each do |name, hash|
+      Nokogiri::XML::Builder.with( xml_add_here ) do |xml|
+        
+        # create the new object so we can generate XML on it
+        obj = Junos::Ez::SRX::Interfaces::Provider.new( @ndev, name, :parent => provd )            
+                
+        # generate the object specific XML inside
+        obj.should = hash || {}
+        obj_xml = obj.xml_element_top( xml, name )    
+        obj.xml_build_change( obj_xml )
+      end      
+    end
+    
+    xml_top.parent[:replace] = "replace" if opts[:replace]    
+    xml_top.doc.root
+  end
+  
+end

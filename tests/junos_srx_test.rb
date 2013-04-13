@@ -15,9 +15,10 @@ class JunosDevice < Netconf::SSH
     super                                                       # open connection to device
     Junos::Ez::Facts::Provider( self )                          # Facts must always be first!
     Junos::Ez::Hosts::Provider( self, :hosts )                  # manage staic host mapping
+    Junos::Ez::SysConfig::Provider( self, :syscfg )
     Junos::Ez::StaticRoutes::Provider( self, :routes )          # manage static routes
     Junos::Ez::L1ports::Provider( self, :l1_ports )             # manage IFD properties
-    Junos::Ez::IPports::Provider( self, :ip_ports )             # manage IPv4 interfaces
+    Junos::Ez::IPports::Provider( self, :ip_ports )             # manage IPv4 interfaces        
     Junos::Ez::SRX::Zones::Provider( self, :zones )             # manage security zones
     Junos::Ez::SRX::Policies::Provider( self, :zpols )          # manage secuirty policies
   end
@@ -37,8 +38,6 @@ filename = "srx-policy.yaml"
 
 JunosDevice.new( host ) do |ndev|
   
-  rt = ndev.routes[:default]
-  binding.pry
   
   from_zone_name = "PII-SOX-BZ-ST1"
   to_zone_name = "OUTSIDE-BZ-ST1"
@@ -69,22 +68,6 @@ JunosDevice.new( host ) do |ndev|
     rule.reorder! :before => rule_list.last
   end
     
-  binding.pry  rule_list = zpol.rules.list!
-  rule = zpol.rules["545"]
-  
-  # hash of new properties ...  
-  new_rule_props = {
-    :description => "This is a test policy rule for JEREMY",
-    :match_srcs => ["S1","S2"],
-    :match_dsts => ["D1", "D2"],
-    :match_apps => ["any"],
-    :action => :permit    
-  }
-
-  zpol.rules.create( "JEREMY", new_rule_props ) do |rule|
-    rule.write!
-    rule.reorder! :before => rule_list.last
-  end
   
 end
 

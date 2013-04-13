@@ -12,14 +12,18 @@ class Junos::Ez::SRX::Interfaces::Provider < Junos::Ez::Provider::Parent
       x.security { x.zones {
         x.send(:'security-zone') { 
           x.name @parent.name
-          x.interfaces {
-            x.name @name
-            return x
-          }
+          xml_element_top( x, @name )
         }
       }}
     }}
   end
+  
+  def xml_element_top( xml, name )
+    xml.interfaces {
+      xml.name name
+      return xml
+    }    
+  end  
   
   ### ---------------------------------------------------------------
   ### XML readers
@@ -33,9 +37,11 @@ class Junos::Ez::SRX::Interfaces::Provider < Junos::Ez::Provider::Parent
     set_has_status( as_xml, as_hash )  
     
     host_ib = as_xml.xpath('host-inbound-traffic')    
+    
     as_hash[:host_inbound_services] = host_ib.xpath('system-services').collect do |svc|
       svc.xpath('name').text.strip
     end    
+    
     as_hash[:host_inbound_protocols] = host_ib.xpath('protocols').collect do |proto|
       proto.xpath('name').text.strip
     end
@@ -47,13 +53,10 @@ class Junos::Ez::SRX::Interfaces::Provider < Junos::Ez::Provider::Parent
   ### XML writers
   ### ---------------------------------------------------------------
   
-  def xml_change_host_inbound_services( xml )
-    should = @should[:host_inbound_services] || []
-    has = @has[:host_inbound_services] || []  
-    
-    add = should - has
-    del = has - should
-        
+  def xml_change_host_inbound_services( xml )    
+    add, del = diff_property_array( :host_inbound_services )       
+    return false if add.empty? and del.empty?
+          
     xml.send( :'host-inbound-traffic' ) {
       del.each do |i| 
         xml.send(:'system-services', Netconf::JunosConfig::DELETE) {
@@ -64,12 +67,9 @@ class Junos::Ez::SRX::Interfaces::Provider < Junos::Ez::Provider::Parent
     }
   end
   
-  def xml_change_host_inbound_protocols( xml )
-    should = @should[:host_inbound_protocols] || []
-    has = @has[:host_inbound_protocols] || []  
-    
-    add = should - has
-    del = has - should
+  def xml_change_host_inbound_protocols( xml )    
+    add, del = diff_property_array( :host_inbound_protocols )       
+    return false if add.empty? and del.empty?
         
     xml.send( :'host-inbound-traffic' ) {
       del.each do |i| 

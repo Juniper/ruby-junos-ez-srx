@@ -1,5 +1,4 @@
 class Junos::Ez::SRX::Policies::Provider < Junos::Ez::Provider::Parent
-  attr_reader :from_zone_name, :to_zone_name
   
   def initialize( p_obj, name = nil, opts = {} )
     super    
@@ -93,34 +92,16 @@ class Junos::Ez::SRX::Policies::Provider
   ## create an 'expanded' hash structure
   ## ----------------------------------------------------------------
   
-  def to_h_expanded( opts = {} )   
-    
-    unless opts[:brief]; return {
-       :name => @name,
-       :rules => rules.catalog!
+  def to_h_expanded( opts = {} )       
+    { :name => @name,
+      :rules => rules.catalog!
     } 
-    end    
-    
-    # make a deep-copy of the catalog since we're going 
-    # to mung it, yo Marshal!
-    
-    out_hash = { 
-      :name => @name,
-      :rules => Marshal.load( Marshal.dump( rules.catalog! ))
-    }
-    
-    out_hash[:rules].each do |rule_name, rule_hash|
-      rule_hash.delete :exist if rule_hash[:exist] == true
-      rule_hash.delete :active if rule_hash[:active] == true
-      rule_hash.delete :count unless rule_hash[:count]
-      rule_hash.delete :log_init unless rule_hash[:log_init]
-      rule_hash.delete :log_close unless rule_hash[:log_close]
-    end
-    
-    return out_hash            
   end
 
   ## ----------------------------------------------------------------
+  ## create the XML for a complete policy rules set given a Hash
+  ## structure the mimics the provider and properties for the 
+  ## Policy and associated PolicyRules
   ## ----------------------------------------------------------------
   
   def xml_from_h_expanded( from_hash, opts = {} )    

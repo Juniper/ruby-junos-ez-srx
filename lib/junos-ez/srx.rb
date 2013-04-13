@@ -80,9 +80,9 @@ module Junos::Ez::SRX::PolicyRules
     :match_dsts,            # array of destinations
     :match_apps,            # array of apps
     :action,                # [ :permit, :reject, :deny ]
-    :count,                 # true | false
-    :log_init,              # true | false
-    :log_close              # true | false
+    :count,                 # true | nil
+    :log_init,              # true | nil
+    :log_close              # true | nil
   ]  
   
   def self.Provider( on_obj, varsym, opts = {} )     

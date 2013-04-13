@@ -24,15 +24,12 @@ class Junos::Ez::SRX::AddressBookEntries::Provider < Junos::Ez::Provider::Parent
     }}
   end
   
-  ### ---------------------------------------------------------------
-  ### Rename
-  ### ---------------------------------------------------------------
-  
-  def xml_element_rename( new_name )
-    # @@@ for now, just allow the re-name without any checking ...
-    return new_name
+  def xml_element_top( xml, name )
+    xml.address { xml.name @name 
+      return xml
+    }    
   end
-  
+    
   ### ---------------------------------------------------------------
   ### XML readers
   ### ---------------------------------------------------------------
@@ -78,7 +75,9 @@ class Junos::Ez::SRX::AddressBookEntries::Provider
   end
   
   def build_catalog
-    Hash[ @ndev.rpc.get_configuration{ |x|
+    @catalog = {}
+    
+    @ndev.rpc.get_configuration{ |x|
       x.security { x.zones {
         x.send(:'security-zone') { x.name @parent.name
           x.send(:'address-book') {
@@ -86,11 +85,65 @@ class Junos::Ez::SRX::AddressBookEntries::Provider
           }
         }
       }}
-    }.xpath('//address').collect{ |adr| 
-      [ adr.xpath('name').text, adr.xpath('ip-prefix').text ]
-    }]
+    }.xpath('//address').each{ |adr|       
+      name = adr.xpath('name').text
+      @catalog[name] = {}
+      xml_read_parser( adr, @catalog[name] )      
+    }    
+    @catalog
   end
   
+end
+
+##### ---------------------------------------------------------------
+##### Provider EXPANDED methods
+##### ---------------------------------------------------------------
+
+class Junos::Ez::SRX::AddressBookEntries::Provider
+  
+  ## -----------------------------------------------------
+  ## create a Hash from the existing provider information
+  ## -----------------------------------------------------
+  
+  def to_h_expanded( opts = {} )           
+    { :name => @parent.name,      # zone name
+      :addrs => catalog
+    }     
+  end    
+    
+  ## ----------------------------------------------------------------
+  ## create the XML for a complete policy rules set given a Hash
+  ## structure the mimics the provider and properties for the 
+  ## Policy and associated PolicyRules
+  ## ----------------------------------------------------------------
+  
+  def xml_from_h_expanded( from_hash, opts = {} )    
+    zone_name = from_hash[:name]    
+    raise ArgumentError, "zone-name as :name not provided in hash" unless zone_name
+
+    ## handle the case where 'self' is either a provider or a specific instance. 
+    
+    zone_pvd = self.is_provider? ? Junos::Ez::SRX::Zones::Provider.new( @ndev, zone_name ) : @parent    
+    xml_top = zone_pvd.xml_at_top    
+    xml_top.send(:'address-book')
+    xml_add_here = xml_top.parent.at('address-book')
+    
+    ## now create objects and process the hash data accordingly
+    
+    from_hash[:addrs].each do |name, hash|
+      Nokogiri::XML::Builder.with( xml_add_here ) do |xml|      
+        # create the new object so we can generate XML on it
+        adr = self.class.new( @ndev, name, :parent => zone_pvd )                    
+        # generate the object specific XML inside
+        adr.should = hash
+        adr_xml = adr.xml_element_top( xml, name )    
+        adr.xml_build_change( adr_xml )            
+      end
+    end
+    
+    xml_top.doc.root
+  end
+
 end
 
 ##### ---------------------------------------------------------------
