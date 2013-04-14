@@ -135,8 +135,7 @@ class Junos::Ez::SRX::Policies::Provider
     xml_top.doc.root
   end
   
+  
 end
-
-
 
 

@@ -149,3 +149,91 @@ class Junos::Ez::SRX::PolicyRules::Provider
   
 end
 
+##### ---------------------------------------------------------------
+##### Provider Misc. operational methods
+##### ---------------------------------------------------------------
+
+class Junos::Ez::SRX::PolicyRules::Provider
+  
+  ## 'catalog_expanded' does the equivalent of the show w/detail option
+  ## this expands the security object names into their exact values.
+  ## note that this processing could take some time given the size of
+  ## the address-books and application database involved. yo!
+  
+  def catalog_expanded( policy_name = nil, opts = {} )
+    
+    context = @parent.name
+    
+    catalog_h = { :name => context }
+    catalog_h[:rules] = []
+    
+    args = { :detail => true, :from_zone => context[0], :to_zone => context[1] }
+    args[:policy_name] = policy_name if policy_name     
+    got = @ndev.rpc.get_firewall_policies( args )
+    
+    got.xpath('security-context/policies/policy-information').each do |pi|
+      catalog_h[:rules] << _pi_to_h_( pi )
+    end     
+    
+    return catalog_h    
+  end
+  
+  ### ---------------------------------------------------------------
+  ### !!! PRIVATE METHODS
+  ### ---------------------------------------------------------------
+
+  private
+  
+  def _pi_to_h_( xml )
+    
+    name = xml.xpath('policy-name').text
+    action = xml.xpath('policy-action/action-type').text.to_sym
+    
+    srcs = xml.xpath('source-addresses/source-address').collect do |i|
+      [ i.xpath('address-name').text, i.xpath('prefixes/address-prefix').text ]
+    end
+    
+    dsts = xml.xpath('destination-addresses/destination-address').collect do |i|
+      [ i.xpath('address-name').text, i.xpath('prefixes/address-prefix').text ]
+    end
+    
+    apps = {}
+    xml.xpath('applications/application').each do |i|
+      app_name = i.xpath('application-name').text
+      app_terms_xml = i.xpath('application-term')
+      app_terms_a = []
+      app_terms_xml.each do |app_term|            
+        app_term_h = {}
+        app_term_h[:proto] = app_term.xpath('protocol').text       
+        app_term_h[:timeout] = app_term.xpath('inactivity-timeout').text.to_i
+        if app_term_h[:proto] == 'icmp'
+          app_term_h[:icmp_type] = app_term.xpath('icmp-info/icmp-type').text
+          app_term_h[:icmp_code] = app_term.xpath('icmp-info/icmp-code').text
+        else        
+          app_sports = [ app_term.xpath('source-port-range/low').text.to_i,
+          app_term.xpath('source-port-range/high').text.to_i ]                          
+          app_dports = [ app_term.xpath('destination-port-range/low').text.to_i,
+          app_term.xpath('destination-port-range/high').text.to_i ]                                
+          app_term_h[:src_ports] = app_sports                    
+          app_term_h[:dst_ports] = app_dports
+        end
+        app_terms_a << app_term_h
+      end
+      apps[app_name] = app_terms_a
+    end
+  
+    to_h = {}
+    to_h[:name] = name
+    to_h[:action] = action
+    to_h[:match_srcs] = Hash[srcs]
+    to_h[:match_dsts] = Hash[dsts]
+    to_h[:match_apps] = apps
+    
+    return to_h
+  end
+  
+end
+
+
+
+

@@ -22,7 +22,7 @@ rule_530 = policy.rules.catalog_expanded( "530" )
 
 t_5_m = catalog_h[:rules].select do |rule|
   not( rule[:match_apps].select do |app_name, app_terms|
-    app_terms.select{|t| t[:timeout] > 0 and t[:timeout] < 300 }
+    app_terms.select{|t| t[:timeout] > 0 and t[:timeout] < 300 }[0]
   end.empty? )
 end
 
