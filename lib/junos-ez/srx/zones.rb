@@ -220,3 +220,55 @@ class Junos::Ez::SRX::Zones::Provider
   end
   
 end
+
+
+##### ---------------------------------------------------------------
+##### Provider Misc. methods
+##### ---------------------------------------------------------------
+
+class Junos::Ez::SRX::Zones::Provider
+  
+  def find_route( ip_prefix = nil, opts = {} )
+    raise ArgumentError, "ip_prefix required" unless ip_prefix
+    
+    ## do a standard route lookup to find the specific interface
+    ## providing a route for the provided ip_prefix
+    
+    got = @ndev.rpc.get_route_information( :destination => ip_prefix, :best => true )
+    return nil unless rt = got.xpath('route-table/rt')[0]
+    rt_ent = rt.xpath('rt-entry')[0]
+    
+    found = {}
+    found[:find] = ip_prefix
+    found[:found] = rt.xpath('rt-destination').text
+    found[:proto] = rt_ent.xpath('protocol-name').text
+    found[:pref] = rt_ent.xpath('preference').text.to_i
+    found[:via] = rt_ent.xpath('nh/via | nh/nh-local-interface').text 
+        
+    ## now find a zone based on the interface (via)    
+    
+    ifs = @ndev.rpc.get_interface_information( :interface_name => found[:via] )
+    found[:zone] = ifs.xpath('logical-interface/logical-interface-zone-name').text.strip
+    
+    ## if the calling object is a resource, then see if the zone
+    ## matches on the lookup, and mark accordingly.
+    
+    if @name; found[:zone_match] = (found[:zone] == @name) end
+    
+    ## if opts[:addrs] is set to true, then search through the zone address book
+    ## to see what matches.  first nab the zone provider depending if the calling
+    ## object is a provider or zone resource.  If it's a zone resource then we
+    ## also need to make sure that the route lookup landed in this zone
+    
+    if opts[:addrs]
+      if is_provider?
+        found[:addrs] = self[found[:zone]].addrs.find( ip_prefix )        
+      else
+        found[:addrs] = (found[:zone_match] == true) ? self.addrs.find(ip_prefix) : nil
+      end      
+    end
+        
+    return found
+  end
+end
+

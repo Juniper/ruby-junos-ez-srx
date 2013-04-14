@@ -181,8 +181,9 @@ class Junos::Ez::SRX::AddressBookEntries::Provider
     # [0] = address-book name
     # [1] = address-book address (string)
     # [2] = IPAddress of [1] for searching
-    @zab_lpm_cache ||= catalog!.collect{ |k,adr| 
-      [ k, adr, IPAddress.parse( adr ) ]
+    @zab_lpm_cache ||= catalog!.collect{ |name, hash| 
+      adr = hash[:ip_prefix]
+      [ name, adr, IPAddress.parse( adr ) ]
     }
   end
 
