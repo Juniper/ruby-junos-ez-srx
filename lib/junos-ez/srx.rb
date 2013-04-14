@@ -94,12 +94,32 @@ module Junos::Ez::SRX::PolicyRules
   
 end
 
+module Junos::Ez::SRX::Apps
+  
+  PROPERTIES = [
+    :description,       # string
+    :proto,             # protocol, string | number
+    :timeout,           # inactivity timeout, number
+    :icmp_type,         # ICMP type, only for proto == 'icmp'
+    :icmp_code,         # ICMP code, only for proto == 'icmp'
+    :dst_ports,         # string-name | array [low, high] 
+  ]
+  
+  def self.Provider( on_obj, varsym, opts = {} )     
+    newbie = Junos::Ez::SRX::Apps::Provider.new( on_obj, nil, opts )     
+    newbie.properties = Junos::Ez::Provider::PROPERTIES + PROPERTIES
+    Junos::Ez::Provider.attach_instance_variable( on_obj, varsym, newbie )    
+  end  
+  
+end
+
 require 'junos-ez/srx/policies'
 require 'junos-ez/srx/policyrules'
 require 'junos-ez/srx/abooke'
 require 'junos-ez/srx/abooks'
 require 'junos-ez/srx/interfaces'
 require 'junos-ez/srx/zones'
+require 'junos-ez/srx/apps'
 
 
 

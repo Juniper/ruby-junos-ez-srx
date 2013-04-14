@@ -13,6 +13,8 @@ Junos::Ez::SRX::Zones::Provider( ndev, :zones )
 Junos::Ez::SRX::Policies::Provider( ndev, :policies )
 Junos::Ez::SRX::Apps::Provider( ndev, :apps )
 
+a = ndev.apps["TCP-1024-3388"]
+
 binding.pry
 
 ndev.close
