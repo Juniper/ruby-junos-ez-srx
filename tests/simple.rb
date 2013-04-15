@@ -17,8 +17,6 @@ Junos::Ez::SRX::AppSets::Provider( ndev, :appsets )
 zone = ndev.zones["DEF-PROTECT-BZ-ST1"]
 addr_set = zone.sets["SWITCHBOARD-MDM-UAT"]
 
-app_list = ndev.apps.list
-appset_list = ndev.appsets.list
 
 binding.pry
 
