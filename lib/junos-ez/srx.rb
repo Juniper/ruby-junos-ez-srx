@@ -107,6 +107,7 @@ module Junos::Ez::SRX::Apps
     :icmp_type,         # ICMP type, only for proto == 'icmp'
     :icmp_code,         # ICMP code, only for proto == 'icmp'
     :dst_ports,         # string-name | array [low, high] 
+    :terms,             # array of composite terms
   ]
   
   def self.Provider( on_obj, varsym, opts = {} )     

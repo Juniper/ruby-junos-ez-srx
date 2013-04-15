@@ -26,14 +26,35 @@ class Junos::Ez::SRX::Apps::Provider < Junos::Ez::Provider::Parent
   def xml_read_parser( as_xml, as_hash )    
     set_has_status( as_xml, as_hash )            
 
-    xml_when_item(as_xml.xpath('description')){|i| as_hash[:description] = i.text }    
-    as_hash[:proto] = as_xml.xpath('protocol').text        
+    xml_when_item(as_xml.xpath('description')){|i| as_hash[:description] = i.text }  
+    xml_when_item(as_xml.xpath('protocol')){|i| as_hash[:proto] = i.text }
+    as_hash[:proto] ||= nil
+    
     xml_when_item(as_xml.xpath('inactivity-timeout')){|i| as_hash[:timeout] = i.text.to_i }
 
     if as_hash[:proto] == 'icmp'
       xml_when_item(as_xml.xpath('icmp-type')){|i| as_hash[:icmp_type] = i.text }
       xml_when_item(as_xml.xpath('icmp-code')){|i| as_hash[:icmp_code] = i.text }
       return true
+    end
+    
+    ## check to see if we have a proto.  if not, this is a composite application
+    ## definition witha collection of terms.  return when done.
+    
+    if as_hash[:proto] == nil
+      terms = []      
+      as_xml.xpath('term').each do |term|
+        term_h = {}
+        term_h[:name] = term.xpath('name').text
+        term_h[:proto] = term.xpath('protocol').text
+        xml_when_item(term.xpath('destination-port')) do |i|
+          term_h[:dst_ports] = _xml_read_parse_destination_port_( i.text )
+        end
+        terms << term_h
+      end
+      as_hash[:terms] = terms
+      
+      return  #!!! end of excution
     end
     
     ### rest of this is for non ICMP
@@ -51,6 +72,16 @@ class Junos::Ez::SRX::Apps::Provider < Junos::Ez::Provider::Parent
     
     return true
   end    
+  
+  def _xml_read_parse_destination_port_( text )
+    if (Float(text) != nil rescue false)
+      text.to_i
+    elsif text =~ /(\d+)-(\d+)/
+      [ $1.to_i, $2.to_i ]
+    else
+      text
+    end    
+  end
   
   ### ---------------------------------------------------------------
   ### XML property writers
@@ -104,6 +135,24 @@ class Junos::Ez::SRX::Apps::Provider
       xml_read_parser( app, @catalog[name] )
     end    
     @catalog
+  end
+  
+  def list_junos_defaults
+    @ndev.rpc.get_configuration{|x| x.groups { x.name 'junos-defaults' 
+      x.applications { x.application(:recurse => 'false')
+    }}}.xpath('//application/name').collect{ |n| n.text }    
+  end
+
+  def catalog_junos_defaults
+    j_catalog = {}
+    @ndev.rpc.get_configuration{|x| x.groups { x.name 'junos-defaults'
+      x.applications { x.application
+    }}}.xpath('//applications/application').each do |app|
+      name = app.xpath('name').text
+      j_catalog[name] = {}
+      xml_read_parser( app, j_catalog[name] )
+    end    
+    j_catalog
   end
   
 end
