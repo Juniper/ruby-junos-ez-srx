@@ -48,7 +48,11 @@ end
 
 module Junos::Ez::SRX::AddressBookSets
   
-  PROPERTIES = [:list]         # array of addresses
+  PROPERTIES = [
+    :description,       # string
+    :addr_names,        # array of address-names
+    :addr_sets,         # array of address-sets, yo!
+  ]         
   
   def self.Provider( on_obj, varsym, opts = {} )     
     newbie = Junos::Ez::SRX::AddressBookSets::Provider.new( on_obj, nil, opts )     
@@ -113,6 +117,22 @@ module Junos::Ez::SRX::Apps
   
 end
 
+module Junos::Ez::SRX::AppSets
+  
+  PROPERTIES = [
+    :description,       # string
+    :app_names,         # array of app-names
+    :app_sets,          # array of app-sets, yes, sets can include other sets, yo!
+  ]
+  
+  def self.Provider( on_obj, varsym, opts = {} )     
+    newbie = Junos::Ez::SRX::AppSets::Provider.new( on_obj, nil, opts )     
+    newbie.properties = Junos::Ez::Provider::PROPERTIES + PROPERTIES
+    Junos::Ez::Provider.attach_instance_variable( on_obj, varsym, newbie )    
+  end  
+  
+end
+
 require 'junos-ez/srx/policies'
 require 'junos-ez/srx/policyrules'
 require 'junos-ez/srx/abooke'
@@ -120,6 +140,7 @@ require 'junos-ez/srx/abooks'
 require 'junos-ez/srx/interfaces'
 require 'junos-ez/srx/zones'
 require 'junos-ez/srx/apps'
+require 'junos-ez/srx/appsets'
 
 
 

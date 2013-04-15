@@ -13,7 +13,7 @@ class Junos::Ez::SRX::AddressBookSets::Provider < Junos::Ez::Provider::Parent
       x.security { x.zones {
         x.send(:'security-zone') { x.name @parent.name
           x.send(:'address-book') {
-            xml_element_top( x, @name )
+            return xml_element_top( x, @name )           
           }
         }
       }}
@@ -38,9 +38,9 @@ class Junos::Ez::SRX::AddressBookSets::Provider < Junos::Ez::Provider::Parent
   def xml_read_parser( as_xml, as_hash )
     set_has_status( as_xml, as_hash )  
     
-    as_hash[:list] = as_xml.xpath('address/name').collect do |this|
-      this.text
-    end
+    xml_when_item(as_xml.xpath('description')){|i| as_hash[:description] = i.text }
+    as_hash[:addr_names] = as_xml.xpath('address/name').collect{ |i| i.text }
+    as_hash[:addr_sets] = as_xml.xpath('address-set/name').collect{ |i| i.text }
     
     true
   end   
@@ -49,16 +49,22 @@ class Junos::Ez::SRX::AddressBookSets::Provider < Junos::Ez::Provider::Parent
   ### XML writers
   ### ---------------------------------------------------------------
   
-  def xml_change_list( xml )
-    add, del = diff_property_array( :list )       
+  def xml_change_addr_names( xml )
+    add, del = diff_property_array( :addr_names )       
     return false if add.empty? and del.empty?
     
     add.each{ |item| xml.address { xml.name item } }
-    del.each{ |item| xml.address( Netconf::JunosConfig::DELETE ) {
-      xml.name item
-    }}
+    del.each{ |item| xml.address( Netconf::JunosConfig::DELETE ) { xml.name item }}
   end
+  
+  def xml_change_addr_sets( xml )
+    add, del = diff_property_array( :addr_sets )       
+    return false if add.empty? and del.empty?
     
+    add.each{ |item| xml.send(:'address-set') { xml.name item } }
+    del.each{ |item| xml.send(:'address-set', Netconf::JunosConfig::DELETE ) {  xml.name item  }}
+  end
+  
 end
 
 ##### ---------------------------------------------------------------
