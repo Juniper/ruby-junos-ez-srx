@@ -14,8 +14,6 @@ Junos::Ez::Provider( ndev )
 Junos::Ez::SRX::Zones.Provider( ndev, :zones )
 Junos::Ez::SRX::Policies.Provider( ndev, :policies )
 
-binding.pry
-
 ### -----------------------------------------------------------------
 ### Load all of the Zones YAML files
 ### -----------------------------------------------------------------

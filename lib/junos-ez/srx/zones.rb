@@ -187,8 +187,8 @@ class Junos::Ez::SRX::Zones::Provider
     provd.properties = Junos::Ez::Provider::PROPERTIES + Junos::Ez::SRX::Zones::PROPERTIES    
     provd[:host_inbound_services] = from_hash[:host_inbound_services] || []
     provd[:host_inbound_protocols] = from_hash[:host_inbound_protocols] || []
-    provd[:_exist] = from_hash[:_exist]
-    provd[:_active] = from_hash[:_active]    
+    provd[:_exist] = from_hash[:_exist] || true
+    provd[:_active] = from_hash[:_active] || true
     
     # setup the XML for writing the complete configuration
     

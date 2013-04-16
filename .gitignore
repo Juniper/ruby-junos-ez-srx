@@ -1,3 +1,4 @@
 tests/mylogins.rb
 tests/fw1
 tests/*.yaml
+tests/vsrx*
