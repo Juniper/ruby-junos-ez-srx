@@ -65,10 +65,11 @@ ndev.close
 # DEPENDENCIES
 
   * gem netconf
+  * gem junos-ez-stdlib
 
 # INSTALLATION 
 
-  * gem install junos-ez-stdlib
+  * gem install junos-ez-srx
 
 # CONTRIBUTORS
 
