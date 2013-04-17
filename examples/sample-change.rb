@@ -18,7 +18,9 @@ ndev = Netconf::SSH.new( login )
 ndev.open
 
 ###
-### bind the Junos EZ provider objects to the device object
+### bind Junos EZ provider objects to the device object, you can pick the
+### instance variable names, I'm just using :zones and :policies, but
+### it's entirely up to you.
 ###
 
 Junos::Ez::Provider ndev
@@ -26,7 +28,7 @@ Junos::Ez::SRX::Zones::Provider ndev, :zones
 Junos::Ez::SRX::Policies::Provider ndev, :policies
 
 ###
-### obtain objects for the from-zone and to-zone
+### select the provider resource objects for the from-zone and to-zone
 ###
 
 from_zone = ndev.zones[ change_data['from-zone']['name'] ]
