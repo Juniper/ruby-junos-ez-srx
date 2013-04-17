@@ -1,0 +1,38 @@
+[edit security policies from-zone PII-SOX-BZ-ST1 to-zone PCI-BZ-ST1]
+      policy DENY-PII-SOX-BZ-ST1-TO-PCI-BZ-ST1-TCP { ... }
++     policy db-to-web {
++         match {
++             source-address [ host-db-b1 host-db-b2 ];
++             destination-address [ host-web-a1 host-web-a2 ];
++             application [ junos-http junos-https ];
++         }
++         then {
++             permit;
++         }
++     }
+      policy DENY-PII-SOX-BZ-ST1-TO-PCI-BZ-ST1 { ... }
+[edit security zones security-zone PCI-BZ-ST1 address-book]
+       address HOST-CAVOLO { ... }
++      address host-web-a1 192.168.10.1/32;
++      address host-web-a2 192.168.10.2/32;
++      address host-web-a3 192.168.10.3/32;
+[edit security zones security-zone PCI-BZ-ST1 address-book]
+       address-set ST1-LDAP-BZ-APP { ... }
++      address-set web-hosts {
++          address host-web-a1;
++          address host-web-a2;
++          address host-web-a3;
++      }
+[edit security zones security-zone PII-SOX-BZ-ST1 address-book]
+       address HOST-MDN-TXN-MSBADGER { ... }
++      address host-db-b1 192.168.20.1/32;
++      address host-db-b2 192.168.20.2/32;
++      address host-db-b3 192.168.20.3/32;
+[edit security zones security-zone PII-SOX-BZ-ST1 address-book]
+       address-set ST1-MTA-TXN-BZ-PII-APP { ... }
++      address-set db-hosts {
++          address host-db-b1;
++          address host-db-b2;
++          address host-db-b3;
++      }
+
