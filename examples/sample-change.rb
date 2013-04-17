@@ -3,16 +3,30 @@ require 'net/netconf/jnpr'
 require 'junos-ez/stdlib'
 require 'junos-ez/srx'
 
+###
+### load the data we want to use to represent the 'change request'
+###
+
 change_data = YAML.load_file( 'change.yaml' )
 
+###
+### open a NETCONF connection to the target device
+###
 login = {:target => 'vsrx', :username => 'jeremy', :password => 'jeremy1' }
-
 ndev = Netconf::SSH.new( login )
 ndev.open
+
+###
+### bind the Junos EZ provider objects to the device object
+###
 
 Junos::Ez::Provider ndev
 Junos::Ez::SRX::Zones::Provider ndev, :zones
 Junos::Ez::SRX::Policies::Provider ndev, :policies
+
+###
+### obtain objects for the from-zone and to-zone
+###
 
 from_zone = ndev.zones[ change_data['from-zone']['name'] ]
 to_zone = ndev.zones[ change_data['to-zone']['name'] ]
@@ -36,8 +50,10 @@ to_zone = ndev.zones[ change_data['to-zone']['name'] ]
   end
 end
 
+###
 ### now add the new rule to the policy.  insert the 
-## new rule before the current last rule
+### new rule before the current last rule
+###
 
 policy = ndev.policies[ [from_zone.name, to_zone.name] ]
 last_rule = policy.rules.list.last
@@ -52,13 +68,22 @@ rule[:match_apps] = change_policy['apps']
 rule.write!
 rule.reorder! :before => last_rule
 
+###
+### get a "diff" output of the changes and display them to the screen
+###
+
 puts "Junos changes:\n"
 config_diff = ndev.rpc.get_configuration(:compare=>'rollback', :rollback=>'0')
 puts config_diff
 
-binding.pry
-ndev.rpc.commit_configuration
+# - breakpoint if we want to 'look around', just uncomment out the next line
+# binding.pry
 
+###
+### now commit the configuration changes and close the connection
+###
+
+ndev.rpc.commit_configuration
 ndev.close
 
 

@@ -30,7 +30,7 @@ policy:
     - host-db-b2
   to:
     - host-web-a1
-    - host-web-a2
+    - host-web-a3
   apps:
     - junos-http
     - junos-https
