@@ -12,6 +12,7 @@ change_data = YAML.load_file( 'change.yaml' )
 ###
 ### open a NETCONF connection to the target device
 ###
+
 login = {:target => 'vsrx', :username => 'jeremy', :password => 'jeremy1' }
 ndev = Netconf::SSH.new( login )
 ndev.open
