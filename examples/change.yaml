@@ -1,0 +1,39 @@
+---
+
+from-zone:    
+  name: PII-SOX-BZ-ST1
+  addresses:
+    host-db-b1: 192.168.20.1
+    host-db-b2: 192.168.20.2
+    host-db-b3: 192.168.20.3
+    db-hosts:
+      - host-db-b1
+      - host-db-b2
+      - host-db-b3
+      
+to-zone:  
+  name: PCI-BZ-ST1
+  addresses:
+    host-web-a1: 192.168.10.1
+    host-web-a2: 192.168.10.2
+    host-web-a3: 192.168.10.3
+    web-hosts:
+      - host-web-a1
+      - host-web-a2
+      - host-web-a3
+
+policy:
+  rule: db-to-web
+  action: permit  
+  from:
+    - host-db-b1
+    - host-db-b2
+  to:
+    - host-web-a1
+    - host-web-a2
+  apps:
+    - junos-http
+    - junos-https
+  
+    
+
