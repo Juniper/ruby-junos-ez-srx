@@ -1,5 +1,7 @@
 # OVERVIEW
 
+**NOTE: Work in progress - not yet in RubyGems.org**
+
 A collection of Ruby classes to make Junos SRX automation Easy.  This library supports the following
 resources:
 
