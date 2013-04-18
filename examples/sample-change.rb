@@ -17,6 +17,7 @@ login = {:target => 'vsrx', :username => 'jeremy', :password => 'jeremy1' }
 ndev = Netconf::SSH.new( login )
 ndev.open
 
+
 ###
 ### bind Junos EZ provider objects to the device object, you can pick the
 ### instance variable names, I'm just using :zones and :policies, but
@@ -60,6 +61,8 @@ end
 
 policy = ndev.policies[ [from_zone.name, to_zone.name] ]
 last_rule = policy.rules.list.last
+
+binding.pry
 
 change_policy = change_data['policy']
 
