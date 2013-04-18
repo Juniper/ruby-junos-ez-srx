@@ -67,7 +67,8 @@ ndev.close
 # DEPENDENCIES
 
   * gem netconf
-  * gem junos-ez-stdlib
+  * gem [junos-ez-stdlib](https://github.com/jeremyschulman/ruby-junos-ez-stdlib)
+
 
 # INSTALLATION 
 
