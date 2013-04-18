@@ -71,7 +71,7 @@ ndev.close
 
 # INSTALLATION 
 
-  * gem install junos-ez-srx
+  * gem install junos-ez-srx  (* JUST NOT YET *)
 
 # CONTRIBUTORS
 
