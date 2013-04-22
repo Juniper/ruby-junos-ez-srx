@@ -36,7 +36,10 @@ end
 
 module Junos::Ez::SRX::AddressBookEntries
   
-  PROPERTIES = [:ip_prefix]
+  PROPERTIES = [
+    :description,       # string
+    :ip_prefix,         # address/pflen
+  ]
   
   def self.Provider( on_obj, varsym, opts = {} )     
     newbie = Junos::Ez::SRX::AddressBookEntries::Provider.new( on_obj, nil, opts )     

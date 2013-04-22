@@ -40,6 +40,7 @@ class Junos::Ez::SRX::AddressBookEntries::Provider < Junos::Ez::Provider::Parent
   
   def xml_read_parser( as_xml, as_hash )
     set_has_status( as_xml, as_hash )  
+    xml_when_item( as_xml.xpath('description')){|i| as_hash[:description] = i.text }
     as_hash[:ip_prefix] = as_xml.xpath('ip-prefix').text
     true    
   end   
