@@ -5,7 +5,7 @@ require 'net/netconf'
 Gem::Specification.new do |s|
 
   s.name = 'junos-ez-srx'
-  s.version = '0.0.5'
+  s.version = '0.0.6'
   s.summary = "Junos NETCONF for SRX"
   s.description = "Junos SRX gem for application development using NETCONF"
   s.homepage = 'https://github.com/jeremyschulman/ruby-junos-nc-srx'
@@ -14,6 +14,6 @@ Gem::Specification.new do |s|
   s.files = FileList[ '*', 'lib/**/*.rb', 'examples/**/*.rb' ]
 
   s.add_dependency('netconf')
-  s.add_dependency('junos-ez-stdlib', '>= 0.0.5')
+  s.add_dependency('junos-ez-stdlib', '>= 0.0.6')
 
 end
