@@ -3,8 +3,11 @@ require 'net/netconf/jnpr'
 require 'junos-ez/stdlib'
 require 'junos-ez/srx'
 
-login = { :target => 'vsrx', :username => 'jeremy',  :password => 'jeremy1',  }
+unless ARGV[0]
+  puts "You must specify a target"
+end
 
+login = { :target => ARGV[0], :username => 'jeremy',  :password => 'jeremy1',  }
 ndev = Netconf::SSH.new( login )
 ndev.open
 

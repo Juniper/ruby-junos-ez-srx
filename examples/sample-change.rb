@@ -78,6 +78,8 @@ rule.reorder! :before => last_rule
 ### get a "diff" output of the changes and display them to the screen
 ###
 
+binding.pry
+
 puts "Junos changes:\n"
 config_diff = ndev.rpc.get_configuration(:compare=>'rollback', :rollback=>'0')
 puts config_diff
