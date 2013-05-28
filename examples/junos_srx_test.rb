@@ -4,6 +4,8 @@ require 'net/netconf/jnpr'
 require 'junos-ez/stdlib'
 require 'junos-ez/srx'
 
+require 'pry'
+
 require_relative 'mylogins'
 
 class JunosDevice < Netconf::SSH

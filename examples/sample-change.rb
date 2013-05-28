@@ -2,6 +2,7 @@ require 'yaml'
 require 'net/netconf/jnpr'
 require 'junos-ez/stdlib'
 require 'junos-ez/srx'
+require 'pry'
 
 ###
 ### load the data we want to use to represent the 'change request'

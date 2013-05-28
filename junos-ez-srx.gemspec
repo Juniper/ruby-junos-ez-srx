@@ -14,6 +14,7 @@ Gem::Specification.new do |s|
   s.files = FileList[ '*', 'lib/**/*.rb', 'examples/**/*.rb' ]
 
   s.add_dependency('netconf')
+  s.add_dependency('ipaddress')
   s.add_dependency('junos-ez-stdlib', '>= 0.0.10')
 
 end
