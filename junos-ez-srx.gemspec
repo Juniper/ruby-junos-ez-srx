@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.version = '0.0.8'
   s.summary = "Junos NETCONF for SRX"
   s.description = "Junos SRX gem for application development using NETCONF"
-  s.homepage = 'https://github.com/jeremyschulman/ruby-junos-ez-srx'
+  s.homepage = 'https://github.com/Juniper/ruby-junos-ez-srx'
   s.authors = ["Jeremy Schulman"]
   s.email = 'jschulman@juniper.net'
   s.files = FileList[ '*', 'lib/**/*.rb', 'examples/**/*.rb' ]
